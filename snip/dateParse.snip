@@ -1,0 +1,14 @@
+      Map<Integer, String> monthNamesShort = Arrays.stream(Month.values())   
+        // .collect(Collectors.toMap(m -> Long.valueOf(m.getValue()), m -> m.toString().substring(0,3)));
+        .collect(Collectors.toMap(Month::getValue, Month::toString));
+
+    //   DateTimeFormatter fmtShort = new DateTimeFormatterBuilder()
+    //     .appendPattern("dd")
+    //     .appendText(ChronoField.MONTH_OF_YEAR, monthNamesShort)
+    //     .appendPattern("yy")
+    //     .toFormatter();
+
+    //   LocalDate dd = LocalDate.parse("12MAY24", fmtShort);
+    //   System.out.println(dd);
+      System.out.println(monthNamesShort);
+

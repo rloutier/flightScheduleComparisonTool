@@ -1,0 +1,114 @@
+
+FlightEntrySource
+	-> une interface qui gère la connection et la fourniture
+	des flights entries jusqu'à plus soif
+	-> méthodes : prepare(), feed(), isDone()
+
+QQ implémentations: fileSource, webSource, keyboardSource
+
+PeriodsAgregator
+	-> class qui "agrège"/"compile" les Dates implicitement contenues dans
+	une période et détecte en passant les conflits et les "agrège"/"compile" as well
+	-> responsable des data-structure d'agrégation (transparent pour
+	l'utilisateur) générale et conflit
+	-> fournit un bilan respectant une (éventuelle) interface OUT
+	-> méthodes: agregateFlightPeriod(), [private] loadDate(), 
+
+FlightsAgregatedPeriodsCollection
+	-> une collection qui regroupe toutes les PeriodsAgregator pour chaque vol
+	recontré
+	-> méthodes: classique: init(), storeFlightEntry(), display()
+
+FlightEntry: FlightId, FlightPeriod
+FlightId ~= String avec contraintes
+FlightPeriod: start, end, DaysFrequence
+start, end: LocalDate, LocalDate-
+DaysFrequency: EnumSet<DayOfWeek>
+
+
+
+--------------------------------------------------------------------------------------------------------------------------
+
+
+FlightEntrySource fes = new keyboardSource();
+FlightsAgregatedPeriodsCollection allFlights = new FlightsAgregatedPeriodsCollection();
+
+fes.prepare();
+allFlights.init();  // Usefull?
+
+while (!fes.isDone()) {
+	currEntry = fes.getEntry();
+	if (currEntry != null)
+		allFlights.storeFlightEntry(currEntry);
+}
+
+allFlights.display( OUTPUT_INTERFACE (new XXX) );
+
+---------------------
+
+FlightsAgregatedPeriodsCollection {
+
+	public void storeFlightEntry(FlightEntry fe) {
+		if (!this.contains(fe.id))
+			this.put(fe.id, new PeriodsAgregator());
+
+		this.get(fe.id).agregateFlightPeriod(fe.per);
+	}
+	private contains(), get(), put()
+}
+
+PeriodsAgregator {
+	public void agregateFlightPeriod(FlightPeriod fp) {
+		fp.start()
+			.DatesUntil(fp.end())
+			.filter(d -> fp.contains_day(d.getDayOfWeek()))
+			.forEach( d -> storeDate(d,fp) );
+	}
+
+	private void storeDate(LocalDate dd, FlightPeriod fp) {
+		prev = this.schedule_put(dd,fp);
+		if (prev != null) {
+			if (!this.conflict_contains(dd)) {
+				this.conflict_init(dd,prev)
+			}
+			this.conflict_add(dd,fp)	
+		}
+	}
+
+	private FlightPeriod schedule_put(LocalDate dd, FlightPeriod fp) {
+		return this.scheduleDates.putIfAbsent(dd,fp);
+	}
+
+	private void conflict_init(LocalDate dd, FlightPeriod fp) {
+		this.conflictsDates.put(
+			dd,
+			new ArrayList<FlightPeriod>(Arrays.asList(fp))
+		);
+	}
+	private void conflict_add(LocalDate dd, FlightPeriod fp) {
+		this.conflictsDates.get(dd).add(fp);
+	}
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
