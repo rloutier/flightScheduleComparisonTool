@@ -8,8 +8,15 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 class InflatedFlightsSchedule {
+    private final String description;
     private final Map<FlightId, InflatedFlightSchedule> schedule = new HashMap<>();
     private final Map<FlightId, FlightScheduleDuplicateDates> duplicates = new HashMap<>();
+
+    public InflatedFlightsSchedule() { this("SCHEDULE-DESC"); }
+
+    public InflatedFlightsSchedule(String description) {
+        this.description = description;
+    }
 
     public void load(InputSource scheduleSrc) {
         scheduleSrc.feedEntries()
@@ -40,12 +47,12 @@ class InflatedFlightsSchedule {
         FlightId fid = FlightId.of(flight);
 
         if (fid == null) {
-            System.out.println("[disp:] Flight invalid -> '" + flight + "'");
+            System.out.println("[display:] Flight invalid -> '" + flight + "'");
         } else {
             if (!schedule.containsKey(fid)) {
-                System.out.println("[disp:] Flight not in schedule -> '" + flight + "'");
+                System.out.println("[display:] Flight not in schedule -> '" + flight + "'");
             } else {
-                schedule.get(fid).display(flight);
+                schedule.get(fid).display(description + ";" + flight);
             }
         }
     }
@@ -54,12 +61,12 @@ class InflatedFlightsSchedule {
         FlightId fid = FlightId.of(flight);
 
         if (fid == null) {
-            System.out.println("[disp:] Flight invalid -> '" + flight + "'");
+            System.out.println("[dup display:] Flight invalid -> '" + flight + "'");
         } else {
             if (!duplicates.containsKey(fid)) {
-                System.out.println("[disp:] Flight not in schedule -> '" + flight + "'");
+                System.out.println("[dup display:] Flight not in schedule -> '" + flight + "'");
             } else {
-                duplicates.get(fid).display(flight);
+                duplicates.get(fid).display(description + ";" + flight);
             }
         }
     }
@@ -74,14 +81,18 @@ class InflatedFlightsSchedule {
         schedule.keySet()
                 .stream()
                 .forEach(
-                    fid -> {
-                        if (!otherSchedule.schedule.containsKey(fid)) {
-                            System.out.println("Flight not in OTHER flight");
-                        } else {
-                            schedule.get(fid).displayNoneOf(otherSchedule.schedule.get(fid), fid.toString());
-                        }
-                    }
-                );
+                        fid -> {
+                            if (!otherSchedule.schedule.containsKey(fid)) {
+                                System.out.println(
+                                    description + ";" + fid.toString() + ";completly missing from '" + otherSchedule.description + "'"
+                                );
+                            } else {
+                                this.schedule.get(fid).displayNoneOf(
+                                    otherSchedule.schedule.get(fid),
+                                    description + ";" + fid.toString()
+                                );
+                            }
+                        });
     }
 }
 
@@ -93,28 +104,28 @@ class InflatedFlightSchedule {
         return flownDates.putIfAbsent(date, fp);
     }
 
-    public void display() { display(""); }
+    public void display() {
+        display("");
+    }
 
     public void display(String prefix) {
         flownDates
-            .forEach((k, v) -> System.out.println(
-                    (prefix.isEmpty() ? "" : prefix + ";") +
-                    k.format(outFmt).toUpperCase() + ";" + v
-                )
-            );
+                .forEach((k, v) -> System.out.println(
+                        (prefix.isEmpty() ? "" : prefix + ";") +
+                                k.format(outFmt).toUpperCase() + ";" + v));
     }
 
-    public void displayNoneOf(InflatedFlightSchedule otherSchedule) { displayNoneOf(otherSchedule,""); }
+    public void displayNoneOf(InflatedFlightSchedule otherSchedule) {
+        displayNoneOf(otherSchedule, "");
+    }
 
     public void displayNoneOf(InflatedFlightSchedule otherSchedule, String prefix) {
         flownDates.entrySet()
-            .stream()
-            .filter( entry -> !otherSchedule.flownDates.containsKey(entry.getKey()))
-            .forEach( entry -> System.out.println(
-                    (prefix.isEmpty() ? "" : prefix + ";") +
-                    entry.getKey().format(outFmt).toUpperCase() + ";" + entry.getValue()
-                )
-            );
+                .stream()
+                .filter(entry -> !otherSchedule.flownDates.containsKey(entry.getKey()))
+                .forEach(entry -> System.out.println(
+                        (prefix.isEmpty() ? "" : prefix + ";") +
+                                entry.getKey().format(outFmt).toUpperCase() + ";" + entry.getValue()));
     }
 
     public String toString() {
@@ -134,22 +145,16 @@ class FlightScheduleDuplicateDates {
     }
 
     public void display() {
-        display("", "");
+        display("");
     }
 
     public void display(String prefix) {
-        display(prefix, "");
-    }
-
-    public void display(String prefix, String suffix) {
         dupsDates.forEach((k, v) -> System.out.println(
                 (prefix.isEmpty() ? "" : prefix + ";") +
                         k.format(outFmt).toUpperCase() + ";" +
                         v.stream()
                                 .map(FlightPeriod::toString)
-                                .collect(Collectors.joining(";"))
-                        +
-                        (suffix.isEmpty() ? "" : ";" + suffix)));
+                                .collect(Collectors.joining(";"))));
     }
 
     public String toString() {

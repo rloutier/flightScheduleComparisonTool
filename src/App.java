@@ -1,24 +1,33 @@
 
 public class App {
     public static void main(String[] args) {
-        // InputSource flightScheduleSrc = new InputSource("input/fdc_vols_formate_AF_DL_filtre_doublon_TimeBoxed.csv");
-        // OutputSink sink = new OutputSink();
-        InputSource sch1Src = new InputSource("input/icss_short.csv");
-        InputSource sch2Src = new InputSource("input/icss_short_2.csv");
-        InflatedFlightsSchedule fdc1 = new InflatedFlightsSchedule();
-        InflatedFlightsSchedule fdc2 = new InflatedFlightsSchedule();
+        InputSource fdcFile = new InputSource("input/fdc_vols_formate_AF_DL_filtre_doublon_TimeBoxed.csv");
+        InputSource icssFile = new InputSource("input/icss_vols_AF_DL_filtre_doublon_TimeBoxed.csv");
+        // InputSource fdcFile = new InputSource("input/fdc_short.csv");
+        // InputSource icssFile = new InputSource("input/icss_short.csv");
 
-        fdc1.load(sch1Src);
-        fdc2.load(sch2Src);
+        InflatedFlightsSchedule fdc = new InflatedFlightsSchedule("FDC");
+        InflatedFlightsSchedule icss = new InflatedFlightsSchedule("ICSS");
 
-        fdc1.display("AF001");
+        fdc.load(fdcFile);
+        icss.load(icssFile);
+
+        // String ff = "AF002"; System.out.println("FDC: " + ff);
+        // fdc.display(ff);
+        // System.out.println();
+        // ff = "AF002"; System.out.println("ICSS: " + ff);
+        // icss.display(ff);
+
+        // System.out.println();
+        // System.out.println("FDC AF999B: duplicates");
+        // fdc.displayDuplicates("AF999B");
+        // System.out.println("ICSS: duplicates");
+        // icss.displayDuplicates();
+
         System.out.println();
-        fdc2.display("AF001");
-
-        fdc1.displayDuplicates("AF004");
-        fdc1.displayDuplicates();
-
-        fdc1.displayNoneOf(fdc2);
-        fdc2.displayNoneOf(fdc1);
+        System.out.println("Dates exclusive to FDC:");
+        fdc.displayNoneOf(icss);
+        // System.out.println("Dates exclusive to ICSS:");
+        // icss.displayNoneOf(fdc);
     }
 }
