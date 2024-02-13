@@ -37,8 +37,9 @@ class InflatedFlightsSchedule {
             if (prevPeriod != null) {
                 if (!duplicates.containsKey(currFlight)) {
                     duplicates.put(currFlight, new FlightScheduleDuplicateDates());
+                    duplicates.get(currFlight).loadDate(currDate, prevPeriod);
                 }
-                duplicates.get(currFlight).loadDate(currDate, currPeriod, prevPeriod);
+                duplicates.get(currFlight).loadDate(currDate, currPeriod);
             }
         }
     }
@@ -137,11 +138,12 @@ class FlightScheduleDuplicateDates {
     private static final DateTimeFormatter outFmt = DateTimeFormatter.ofPattern("ddMMMyy", Locale.US);
     private final Map<LocalDate, List<FlightPeriod>> dupsDates = new HashMap<>();
 
-    void loadDate(LocalDate date, FlightPeriod current, FlightPeriod previous) {
+    void loadDate(LocalDate date, FlightPeriod period) {
         if (!dupsDates.containsKey(date)) {
-            dupsDates.put(date, new ArrayList<>(List.of(previous)));
+            dupsDates.put(date, new ArrayList<>(List.of(period)));
+        } else {
+            dupsDates.get(date).add(period);
         }
-        dupsDates.get(date).add(current);
     }
 
     public void display() {
