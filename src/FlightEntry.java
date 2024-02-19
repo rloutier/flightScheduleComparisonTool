@@ -125,7 +125,7 @@ class FlightId {
     private final String value; // could be broken in few domain relevant parts (cie, number, suffix)
 
     public static FlightId of(String fid) {
-        // Some validation, possibly failing and retunr null
+        // Some validation, possibly failing and return null
         return new FlightId(fid);
     }
 
