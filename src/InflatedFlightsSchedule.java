@@ -65,7 +65,7 @@ class InflatedFlightsSchedule {
             System.out.println("[dup display:] Flight invalid -> '" + flight + "'");
         } else {
             if (!duplicates.containsKey(fid)) {
-                System.out.println("[dup display:] Flight not in schedule -> '" + flight + "'");
+                System.out.println("[dup display:] No dups for flight -> '" + flight + "'");
             } else {
                 duplicates.get(fid).display(description + ";" + flight);
             }
